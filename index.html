@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kiếm Tiền Online Miễn Phí</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background: #f4f7f6; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; }
+        .container { background: white; padding: 30px; border-radius: 15px; width: 100%; max-width: 400px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); text-align: center; }
+        h2 { color: #333; margin-bottom: 20px; font-size: 24px; }
+        input { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 8px; outline: none; font-size: 16px; }
+        input:focus { border-color: #28a745; }
+        button { width: 100%; padding: 12px; background: #28a745; color: white; border: none; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 10px; transition: 0.2s; }
+        button:hover { background: #218838; }
+        .btn-reg { background: #007bff; }
+        .btn-reg:hover { background: #0069d9; }
+        .btn-task { background: #ffc107; color: #333; font-size: 18px; margin-top: 20px; }
+        .btn-task:hover { background: #e0a800; }
+        .btn-out { background: #dc3545; margin-top: 30px; padding: 8px; font-size: 14px; }
+        .btn-out:hover { background: #c82333; }
+        .hidden { display: none; }
+        .balance { font-size: 32px; color: #28a745; font-weight: bold; margin: 15px 0; }
+        .user-name { color: #007bff; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+    <!-- PHẦN 1: ĐĂNG NHẬP / ĐĂNG KÝ -->
+    <div id="auth-box" class="container">
+        <h2>Đăng Nhập / Đăng Ký</h2>
+        <input type="text" id="username" placeholder="Tên tài khoản...">
+        <input type="password" id="password" placeholder="Mật khẩu...">
+        <button onclick="login()">Đăng Nhập</button>
+        <button onclick="register()" class="btn-reg">Tạo Tài Khoản Mới</button>
+    </div>
+
+    <!-- PHẦN 2: GIAO DIỆN KIẾM TIỀN CHÍNH -->
+    <div id="main-box" class="container hidden">
+        <h2>Xin chào, <span id="user-display" class="user-name"></span>!</h2>
+        <p style="color: #666;">Số dư tài khoản hiện tại:</p>
+        <div class="balance"><span id="balance-display">0</span>đ</div>
+        
+        <button onclick="doTask()" class="btn-task">⚡ Làm Nhiệm Vụ (+1,000đ)</button>
+        
+        <button onclick="logout()" class="btn-out">Đăng xuất tài khoản</button>
+    </div>
+
+    <script>
+        // Hệ thống lưu trữ dữ liệu giả lập trên trình duyệt (Local Storage) để bạn test thử trước khi kết nối database phức tạp
+        let currentUser = null;
+
+        function register() {
+            const user = document.getElementById('username').value.trim();
+            const pass = document.getElementById('password').value.trim();
+            
+            if(!user || !pass) { alert("Vui lòng điền đủ tài khoản và mật khẩu!"); return; }
+            if(localStorage.getItem(user)) { alert("Tài khoản này đã tồn tại trên hệ thống!"); return; }
+            
+            const userData = { username: user, password: pass, balance: 0 };
+            localStorage.setItem(user, JSON.stringify(userData));
+            alert("Chúc mừng! Bạn đã đăng ký tài khoản thành công. Bây giờ hãy bấm Đăng Nhập nhé.");
+        }
+
+        function login() {
+            const user = document.getElementById('username').value.trim();
+            const pass = document.getElementById('password').value.trim();
+            
+            const storedData = localStorage.getItem(user);
+            if(!storedData) { alert("Tài khoản không tồn tại!"); return; }
+            
+            const userData = JSON.parse(storedData);
+            if(userData.password === pass) {
+                currentUser = userData;
+                document.getElementById('auth-box').classList.add('hidden');
+                document.getElementById('main-box').classList.remove('hidden');
+                document.getElementById('user-display').innerText = currentUser.username;
+                document.getElementById('balance-display').innerText = currentUser.balance.toLocaleString();
+            } else {
+                alert("Sai mật khẩu rồi bạn ơi!");
+            }
+        }
+
+        function doTask() {
+            if (!currentUser) return;
+            currentUser.balance += 1000;
+            
+            // Cập nhật lại vào bộ nhớ dữ liệu
+            localStorage.setItem(currentUser.username, JSON.stringify(currentUser));
+            document.getElementById('balance-display').innerText = currentUser.balance.toLocaleString();
+            alert("Bạn đã hoàn thành nhiệm vụ thành công! Tài khoản được cộng +1,000đ.");
+        }
+
+        function logout() {
+            location.reload();
+        }
+    </script>
+</body>
+</html>
